@@ -38,8 +38,6 @@ Servo servo_LeftMotor;
 I2CEncoder encoder_RightMotor;
 I2CEncoder encoder_LeftMotor;
 
-boolean bt_Motors_Enabled = true;
-
 //port pin constants
 const int ci_Ultrasonic_Ping = 2;   //input plug
 const int ci_Ultrasonic_Data = 3;   //output plug
@@ -151,10 +149,6 @@ boolean bt_3_S_Time_Up = false;
 boolean bt_Do_Once = false;
 boolean bt_Cal_Initialized = false;
 
-unsigned int ui_Drive_State = 0;
-unsigned int ui_Last_Line = 1;
-unsigned long ul_Time_On = 0;
-
 void setup() {
   Wire.begin();	      // Wire library required for I2CEncoder library
   Serial.begin(9600);
@@ -242,9 +236,6 @@ void loop()
     bt_Do_Once = LOW;
   }
 
-  // check if drive motors should be powered
-  bt_Motors_Enabled = digitalRead(ci_Motor_Enable_Switch);
-
   // modes 
   // 0 = default after power up/reset
   // 1 = Press mode button once to enter. Run robot.
@@ -270,22 +261,14 @@ void loop()
       readLineTrackers();
       if(bt_3_S_Time_Up)
       {
-        if(bt_Motors_Enabled)
-        {
-          // Add line tracking code in this if statement block
-          // Use information from LineTrackers (bt_Left, bt_Middle, bt_Right) to determine
-          // robot position with respect to line and adjust motor speeds to "follow" line
+        // Add line tracking code in this if statement block
+        // Use information from LineTrackers (bt_Left, bt_Middle, bt_Right) to determine
+        // robot position with respect to line and adjust motor speeds to "follow" line
+        
+        // Drive straight
+        servo_LeftMotor.writeMicroseconds(ui_Motor_Speed);
+        servo_RightMotor.writeMicroseconds(ui_Motor_Speed);
 
-          // Drive straight
-          servo_LeftMotor.writeMicroseconds(ui_Motor_Speed);
-          servo_RightMotor.writeMicroseconds(ui_Motor_Speed);
-        }
-        else
-        {  
-          // stop motors
-          servo_LeftMotor.writeMicroseconds(ci_Left_Motor_Stop); 
-          servo_RightMotor.writeMicroseconds(ci_Right_Motor_Stop); 
-        }
 #ifdef DEBUG_MOTORS  
         Serial.print("Motors: Default: ");
         Serial.print(ui_Motor_Speed);
